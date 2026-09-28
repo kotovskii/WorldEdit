@@ -71,8 +71,30 @@ includeBuild("build-logic")
 
 include("worldedit-libs")
 
-listOf("1.20.2", "1.20.4", "1.20.6", "1.21").forEach {
-    include("worldedit-bukkit:adapters:adapter-$it")
+val requestedTasks = gradle.startParameter.taskNames
+val skipBukkitAdapters = providers.gradleProperty("worldedit.skipBukkitAdapters")
+    .map(String::toBoolean)
+    .getOrElse(
+        requestedTasks.isNotEmpty()
+            && requestedTasks.none { it.contains("worldedit-bukkit") || it.contains(":adapters") }
+            && requestedTasks.all {
+                listOf(
+                    "worldedit-cli",
+                    "worldedit-core",
+                    "worldedit-fabric",
+                    "worldedit-libs",
+                    "worldedit-mod",
+                    "worldedit-neoforge",
+                    "worldedit-sponge"
+                ).any(it::contains)
+            }
+    )
+
+include("worldedit-bukkit:adapters")
+if (!skipBukkitAdapters) {
+    listOf("1.20.2", "1.20.4", "1.20.6", "1.21").forEach {
+        include("worldedit-bukkit:adapters:adapter-$it")
+    }
 }
 
 listOf("bukkit", "core", "fabric", "neoforge", "sponge", "cli").forEach {

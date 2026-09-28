@@ -83,6 +83,12 @@ public class BlockState implements BlockStateHolder<BlockState> {
         this.lazyStringRepresentation = LazyReference.from(BlockStateHolder.super::getAsString);
     }
 
+    public static BlockState withProperties(BlockType blockType, Map<Property<?>, Object> values) {
+        BlockState blockState = new BlockState(blockType);
+        values.forEach(blockState::setState);
+        return blockState;
+    }
+
     /**
      * Generates a map of all possible states for a block type.
      *
@@ -191,6 +197,12 @@ public class BlockState implements BlockStateHolder<BlockState> {
 
     @Override
     public <V> BlockState with(final Property<V> property, final V value) {
+        if (states == null) {
+            BlockState blockState = new BlockState(blockType);
+            this.values.forEach(blockState::setState);
+            blockState.setState(property, value);
+            return blockState;
+        }
         BlockState result = states.get(property, value);
         return result == null ? this : result;
     }

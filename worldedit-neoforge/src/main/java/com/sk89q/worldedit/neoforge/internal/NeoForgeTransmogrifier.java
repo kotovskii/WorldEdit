@@ -62,6 +62,11 @@ public class NeoForgeTransmogrifier {
                     .collect(Collectors.toList()));
             }
             if (property instanceof net.minecraft.world.level.block.state.properties.EnumProperty) {
+                if (property.getValueClass() == net.minecraft.core.Direction.class) {
+                    return new DirectionalProperty(property.getName(), ((net.minecraft.world.level.block.state.properties.EnumProperty<?>) property).getPossibleValues().stream()
+                        .map(value -> NeoForgeAdapter.adaptEnumFacing((net.minecraft.core.Direction) value))
+                        .collect(Collectors.toList()));
+                }
                 // Note: do not make x.getSerializedName a method reference.
                 // It will cause runtime bootstrap exceptions.
                 //noinspection Convert2MethodRef
@@ -103,6 +108,11 @@ public class NeoForgeTransmogrifier {
                 Direction dir = (Direction) value;
                 value = NeoForgeAdapter.adapt(dir);
             } else if (property instanceof net.minecraft.world.level.block.state.properties.EnumProperty) {
+                if (property.getValueClass() == net.minecraft.core.Direction.class && value instanceof Direction dir) {
+                    value = NeoForgeAdapter.adapt(dir);
+                    newState = newState.setValue(property, value);
+                    continue;
+                }
                 String enumName = (String) value;
                 value = ((net.minecraft.world.level.block.state.properties.EnumProperty<?>) property).getValue((String) value)
                     .orElseThrow(() -> new IllegalStateException("Enum property " + property.getName() + " does not contain " + enumName));
@@ -122,7 +132,7 @@ public class NeoForgeTransmogrifier {
 
     public static BlockState transmogToWorldEdit(net.minecraft.world.level.block.state.BlockState blockState) {
         BlockType blockType = NeoForgeAdapter.adapt(blockState.getBlock());
-        return blockType.getState(transmogToWorldEditProperties(blockType, blockState.getValues()));
+        return BlockState.withProperties(blockType, transmogToWorldEditProperties(blockType, blockState.getValues()));
     }
 
     private NeoForgeTransmogrifier() {

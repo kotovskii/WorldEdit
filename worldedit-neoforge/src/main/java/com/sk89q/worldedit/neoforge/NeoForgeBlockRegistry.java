@@ -19,6 +19,7 @@
 
 package com.sk89q.worldedit.neoforge;
 
+import com.sk89q.worldedit.internal.block.BlockStateIdAccess;
 import com.sk89q.worldedit.neoforge.internal.NeoForgeTransmogrifier;
 import com.sk89q.worldedit.registry.state.Property;
 import com.sk89q.worldedit.util.formatting.text.Component;
@@ -73,5 +74,15 @@ public class NeoForgeBlockRegistry extends BundledBlockRegistry {
     public OptionalInt getInternalBlockStateId(BlockState state) {
         net.minecraft.world.level.block.state.BlockState equivalent = NeoForgeAdapter.adapt(state);
         return OptionalInt.of(Block.getId(equivalent));
+    }
+
+    @Override
+    public void registerInternalBlockStateIds() {
+        for (net.minecraft.world.level.block.state.BlockState nativeState : Block.BLOCK_STATE_REGISTRY) {
+            int id = Block.getId(nativeState);
+            if (BlockStateIdAccess.getBlockStateById(id) == null) {
+                BlockStateIdAccess.register(NeoForgeTransmogrifier.transmogToWorldEdit(nativeState), id);
+            }
+        }
     }
 }

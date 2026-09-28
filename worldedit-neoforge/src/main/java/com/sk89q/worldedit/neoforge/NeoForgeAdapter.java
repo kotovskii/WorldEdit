@@ -196,7 +196,8 @@ public final class NeoForgeAdapter {
         int blockStateId = Block.getId(blockState);
         BlockState worldEdit = BlockStateIdAccess.getBlockStateById(blockStateId);
         if (worldEdit == null) {
-            return NeoForgeTransmogrifier.transmogToWorldEdit(blockState);
+            worldEdit = NeoForgeTransmogrifier.transmogToWorldEdit(blockState);
+            BlockStateIdAccess.register(worldEdit, blockStateId);
         }
         return worldEdit;
     }

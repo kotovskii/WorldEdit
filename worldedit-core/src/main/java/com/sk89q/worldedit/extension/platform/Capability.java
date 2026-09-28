@@ -21,8 +21,6 @@ package com.sk89q.worldedit.extension.platform;
 
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.internal.block.BlockStateIdAccess;
-import com.sk89q.worldedit.world.block.BlockState;
-import com.sk89q.worldedit.world.block.BlockType;
 import com.sk89q.worldedit.world.registry.BlockRegistry;
 
 /**
@@ -94,13 +92,7 @@ public enum Capability {
         @Override
         void ready(PlatformManager platformManager, Platform platform) {
             BlockRegistry blockRegistry = platform.getRegistries().getBlockRegistry();
-            for (BlockType type : BlockType.REGISTRY) {
-                for (BlockState state : type.getAllStates()) {
-                    BlockStateIdAccess.register(state,
-                        blockRegistry.getInternalBlockStateId(state)
-                            .orElse(BlockStateIdAccess.invalidId()));
-                }
-            }
+            blockRegistry.registerInternalBlockStateIds();
         }
 
         @Override

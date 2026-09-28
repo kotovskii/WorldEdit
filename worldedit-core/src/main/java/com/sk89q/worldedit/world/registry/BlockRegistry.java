@@ -19,6 +19,7 @@
 
 package com.sk89q.worldedit.world.registry;
 
+import com.sk89q.worldedit.internal.block.BlockStateIdAccess;
 import com.sk89q.worldedit.registry.state.Property;
 import com.sk89q.worldedit.util.formatting.text.Component;
 import com.sk89q.worldedit.world.block.BlockState;
@@ -78,5 +79,17 @@ public interface BlockRegistry {
      * @return the internal ID of the state
      */
     OptionalInt getInternalBlockStateId(BlockState state);
+
+    /**
+     * Register this platform's block states with WorldEdit's internal ID cache.
+     */
+    default void registerInternalBlockStateIds() {
+        for (BlockType type : BlockType.REGISTRY) {
+            for (BlockState state : type.getAllStates()) {
+                BlockStateIdAccess.register(state,
+                    getInternalBlockStateId(state).orElse(BlockStateIdAccess.invalidId()));
+            }
+        }
+    }
 
 }
